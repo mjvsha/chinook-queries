@@ -1,0 +1,92 @@
+Artist.find_by(name: 'Queen')
+I think Artist.find will only retrieve quereies with id numbers
+ 
+Queen_albums = Album.where(artist_id: 51)
+ 
+Returns an array of all queen albums
+ 
+ 
+Count how many tracks belong to the media tupe "Protected MPEG-4 video file"
+ 
+-->remember that the .find method utilizes only primary keys to access the data. So you need ot pass n a primary ey as an argument and NTHING else will work. So to find by another criteria, use find_by
+--> find only accesses elements by their IDs..so youre not gonna bea ble to find anything with anything besides their ids!!
+ 
+MediaType.find_by(name: "Protected MPEG-4 video file")
+  MediaType Load (2.5ms)  SELECT  "media_types".* FROM "media_types" WHERE "media_types"."name" = $1 LIMIT $2  [["name", "Protected MPEG-4 video file"], ["LIMIT", 1]]
+=> #<MediaType id: 3, name: "Protected MPEG-4 video file", created_at: "2007-12-07 13:17:17", updated_at: "2014-01-29 22:14:22">
+ 
+tracks = Track.where(media_type_id: 3) 
+  Track Load (5.5ms)  SELECT  "tracks".* FROM "tracks" WHERE "tracks"."media_type_id" = $1 LIMIT $2  [["media_type_id", 3], ["LIMIT", 11]]
+=> #<ActiveRecord::Relation [#<Track id: 2852, album_id: 228, genre_id: 21, media_type_id: 3, name: "Run!", composer: nil, milliseconds: 2602602, bytes: 542936677, unit_price: 0.199e1, created_at: "2005-08-06 07:42:50", updated_at: "2014-01-29 22:15:03">, #<Track id: 2819, album_id: 226, genre_id: 18, media_type_id: 3, name: "Battlestar Galactica: The Story So Far", composer: nil, milliseconds: 2622250, bytes: 490750393, unit_price: 0.199e1, created_at: "2012-03-30 19:46:32", updated_at: "2014-01-29 22:15:03">, #<Track id: 2820, album_id: 227, genre_id: 19, media_type_id: 3, name: "Occupation / Precipice", composer: nil, milliseconds: 5286953, bytes: 1054423946, unit_price: 0.199e1, created_at: "2012-09-13 06:18:28", updated_at: "2014-01-29 22:15:03">, #<Track id: 2821, album_id: 227, genre_id: 19, media_type_id: 3, name: "Exodus, Pt. 1", composer: nil, milliseconds: 2621708, bytes: 475079441, unit_price: 0.199e1, created_at: "2012-09-13 06:18:28", updated_at: "2014-01-29 22:15:03">, #<Track id: 2822, album_id: 227, genre_id: 19, media_type_id: 3, name: "Exodus, Pt. 2", composer: nil, milliseconds: 2618000, bytes: 466820021, unit_price: 0.199e1, created_at: "2012-09-13 06:18:28", updated_at: "2014-01-29 22:15:03">, #<Track id: 2823, album_id: 227, genre_id: 19, media_type_id: 3, name: "Collaborators", composer: nil, milliseconds: 2626626, bytes: 483484911, unit_price: 0.199e1, created_at: "2012-09-13 06:18:28", updated_at: "2014-01-29 22:15:03">, #<Track id: 2824, album_id: 227, genre_id: 19, media_type_id: 3, name: "Torn", composer: nil, milliseconds: 2631291, bytes: 495262585, unit_price: 0.199e1, created_at: "2012-09-13 06:18:28", updated_at: "2014-01-29 22:15:03">, #<Track id: 2825, album_id: 227, genre_id: 18, media_type_id: 3, name: "A Measure of Salvation", composer: nil, milliseconds: 2563938, bytes: 489715554, unit_price: 0.199e1, created_at: "2012-09-13 06:18:28", updated_at: "2014-01-29 22:15:03">, #<Track id: 2826, album_id: 227, genre_id: 18, media_type_id: 3, name: "Hero", composer: nil, milliseconds: 2713755, bytes: 506896959, unit_price: 0.199e1, created_at: "2012-09-13 06:18:28", updated_at: "2014-01-29 22:15:03">, #<Track id: 2828, album_id: 227, genre_id: 18, media_type_id: 3, name: "The Passage", composer: nil, milliseconds: 2623875, bytes: 490375760, unit_price: 0.199e1, created_at: "2012-09-13 06:18:28", updated_at: "2014-01-29 22:15:03">, ...]>
+ 
+ 
+-> a query was made for Track object, where I passed in the key for media_typ_id
+-->keep in mind the syntax. Don’t use a = sign , but instead a : because we are referencing a key
+ 
+ 
+Find the genre with the name "Hip Hop/Rap".
+Genre.find_by(name: "Hip Hop/Rap") 
+  Genre Load (23.1ms)  SELECT  "genres".* FROM "genres" WHERE "genres"."name" = $1 LIMIT $2  [["name", "Hip Hop/Rap"], ["LIMIT", 1]]
+=> #<Genre id: 17, name: "Hip Hop/Rap", created_at: "2013-01-20 02:04:31", updated_at: "2014-01-29 22:14:08">
+ 
+ 
+Count how many tracks belong to the "Hip Hop/Rap" genre
+ 
+irb(main):025:0> Track.where(genre_id: 17).count 
+   (6.5ms)  SELECT COUNT(*) FROM "tracks" WHERE "tracks"."genre_id" = $1  [["genre_id", 17]]
+=> 35
+ 
+Dissecting this statement:
+We see that I had to use the where clause, because the find and find_by clauses I believe only return the first element that matches the record
+So we had to use where, which spits back all the matching records
+And then I can appy count to it, which gives me back th enumber of records that matcth my criteria.
+Calling count before when I was using the find and find_by clauses didn’t work because I was only getting one result anyway
+ 
+Find the total amount of time required to listen to all the tracks in the database.
+ 
+Track.sum("milliseconds") 
+   (5.3ms)  SELECT SUM("tracks"."milliseconds") FROM "tracks"
+=> 1378575827
+ 
+Find the highest price of any track that has the media type "MPEG audio file".
+  1.	Find the id of the mpeg audio file
+MediaType.find_by(name: "MPEG audio file") 
+  MediaType Load (0.7ms)  SELECT  "media_types".* FROM "media_types" WHERE "media_types"."name" = $1 LIMIT $2  [["name", "MPEG audio file"], ["LIMIT", 1]]
+=> #<MediaType id: 1, name: "MPEG audio file", created_at: "2006-11-24 08:21:33", updated_at: "2014-01-29 22:14:22">
+ 
+Track.where(media_type_id: "MPEG audio file")
+Will give me a list of all the tracks with the media type id "Mpeg audio file"
+ 
+track = Track.where(media_type_id: 1).order(unit_price: :desc).first
+ 
+#<Track id: 6, album_id: 1, genre_id: 1, media_type_id: 1, name: "Put The Finger On You", composer: "Angus Young, Malcolm Young, Brian Johnson", milliseconds: 205662, bytes: 6713451, unit_price: 0.99e0, created_at: "2005-01-03 05:49:26", updated_at: "2014-01-29 22:14:56">
+ 
+Find the 2 oldest artists.
+ 
+Album.order('created_at').limit(2)
+  Album Load (1.1ms)  SELECT  "albums".* FROM "albums" ORDER BY created_at LIMIT $1  [["LIMIT", 2]]
+=> #<ActiveRecord::Relation [#<Album id: 83, artist_id: 85, title: "My Way: The Best Of Frank Sinatra [Disc 1]", created_at: "2004-02-03 01:56:08", updated_at: "2014-01-29 22:14:02">, #<Album id: 345, artist_id: 273, title: "Monteverdi: L'Orfeo", created_at: "2004-02-03 10:05:29", updated_at: "2014-01-29 22:14:02">]>
+irb(main):051:0> 
+ 
+ 
+Find all "MPEG autio file" tracks in the genre "Electronica/Dance".
+ 
+[["name", "Electronica/Dance"], ["LIMIT", 1]]
+=> #<Genre id: 15, name: "Electronica/Dance", created_at: "2008-05-25 12:13:42", updated_at: "2014-01-29 22:14:08">
+MediaType.find_by(name: "MPEG audio file") 
+  MediaType Load (0.7ms)  SELECT  "media_types".* FROM "media_types" WHERE "media_types"."name" = $1 LIMIT $2  [["name", "MPEG audio file"], ["LIMIT", 1]]
+=> #<MediaType id: 1, name: "MPEG audio file", created_at: "2006-11-24 08:21:33", updated_at: "2014-01-29 22:14:22">
+ 
+Track.where(genre_id: 15, media_type_id: 1) 
+  Track Load (1.5ms)  SELECT  "tracks".* FROM "tracks" WHERE "tracks"."genre_id" = $1 AND "tracks"."media_type_id" = $2 LIMIT $3  [["genre_id", 15], ["media_type_id", 1], ["LIMIT", 11]]
+=> #<ActiveRecord::Relation [#<Track id: 3319, album_id: 259, genre_id: 15, media_type_id: 1, name: "Instinto Colectivo", composer: nil, milliseconds: 300564, bytes: 12024875, unit_price: 0.99e0, created_at: "2004-09-27 22:40:29", updated_at: "2014-01-29 22:15:04">, #<Track id: 3320, album_id: 259, genre_id: 15, media_type_id: 1, name: "Chapa o Coco", composer: nil, milliseconds: 143830, bytes: 5755478, unit_price: 0.99e0, created_at: "2004-09-27 22:40:29", updated_at: "2014-01-29 22:15:04">, #<Track id: 3321, album_id: 259, genre_id: 15, media_type_id: 1, name: "Prostituta", composer: nil, milliseconds: 359000, bytes: 14362307, unit_price: 0.99e0, created_at: "2004-09-27 22:40:29", updated_at: "2014-01-29 22:15:04">, #<Track id: 3322, album_id: 259, genre_id: 15, media_type_id: 1, name: "Eu So Queria Sumir", composer: nil, milliseconds: 269740, bytes: 10791921, unit_price: 0.99e0, created_at: "2004-09-27 22:40:29", updated_at: "2014-01-29 22:15:04">, #<Track id: 3323, album_id: 259, genre_id: 15, media_type_id: 1, name: "Tres Reis", composer: nil, milliseconds: 304143, bytes: 12168015, unit_price: 0.99e0, created_at: "2004-09-27 22:40:29", updated_at: "2014-01-29 22:15:04">, #<Track id: 3324, album_id: 259, genre_id: 15, media_type_id: 1, name: "Um Lugar ao Sol", composer: nil, milliseconds: 212323, bytes: 8495217, unit_price: 0.99e0, created_at: "2004-09-27 22:40:29", updated_at: "2014-01-29 22:15:04">, #<Track id: 3325, album_id: 259, genre_id: 15, media_type_id: 1, name: "Batalha Naval", composer: nil, milliseconds: 285727, bytes: 11431382, unit_price: 0.99e0, created_at: "2004-09-27 22:40:29", updated_at: "2014-01-29 22:15:04">, #<Track id: 3327, album_id: 259, genre_id: 15, media_type_id: 1, name: "O Misterio do Samba", composer: nil, milliseconds: 226142, bytes: 9047970, unit_price: 0.99e0, created_at: "2004-09-27 22:40:29", updated_at: "2014-01-29 22:15:04">, #<Track id: 3328, album_id: 259, genre_id: 15, media_type_id: 1, name: "Armadura", composer: nil, milliseconds: 232881, bytes: 9317533, unit_price: 0.99e0, created_at: "2004-09-27 22:40:29", updated_at: "2014-01-29 22:15:04">, #<Track id: 3329, album_id: 259, genre_id: 15, media_type_id: 1, name: "Na Ladeira", composer: nil, milliseconds: 221570, bytes: 8865099, unit_price: 0.99e0, created_at: "2004-09-27 22:40:29", updated_at: "2014-01-29 22:15:04">, ...]>
+ 
+ 
+Find the least expensive track that has the genre "Electronica/Dance".
+Genre.find_by(name: "Electronica/Dance") 
+  Genre Load (0.8ms)  SELECT  "genres".* FROM "genres" WHERE "genres"."name" = $1 LIMIT $2  [["name", "Electronica/Dance"], ["LIMIT", 1]]
+=> #<Genre id: 15, name: "Electronica/Dance", created_at: "2008-05-25 12:13:42", updated_at: "2014-01-29 22:14:08">
+ 
+Track.where(genre_id: 15).order('unit_price').first
+  Track Load (2.3ms)  SELECT  "tracks".* FROM "tracks" WHERE "tracks"."genre_id" = $1 ORDER BY unit_price LIMIT $2  [["genre_id", 15], ["LIMIT", 1]]
+=> #<Track id: 3319, album_id: 259, genre_id: 15, media_type_id: 1, name: "Instinto Colectivo", composer: nil, milliseconds: 300564, bytes: 12024875, unit_price: 0.99e0, created_at: "2004-09-27 22:40:29", updated_at: "2014-01-29 22:15:04">
